@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Trip Organizer</string>
+    <string name="vrijeme_izleta">vrijeme izleta</string>
+    <string name="datum">Datum</string>
+    <string name="vrijeme">Vrijeme</string>
+    <string name="naziv_izleta">Naziv izleta</string>
+    <string name="ready">R\nE\nA\nD\nY</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="trips">Trips</string>
+    <string name="profile">Profile</string>
+    <string name="log_out">Log Out</string>
+    <string name="time">Time</string>
+    <string name="date">Date</string>
+    <string name="trip_name">Trip name</string>
+</resources>
