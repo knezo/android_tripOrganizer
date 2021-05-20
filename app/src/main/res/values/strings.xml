@@ -14,4 +14,6 @@
     <string name="time">Time</string>
     <string name="date">Date</string>
     <string name="trip_name">Trip name</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="register"><u>REGISTER</u></string>
 </resources>

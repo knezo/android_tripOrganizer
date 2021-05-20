@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "62225854328",
+    "project_id": "triporganizer-4ed91",
+    "storage_bucket": "triporganizer-4ed91.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:62225854328:android:6e15f2597d0116f7e0a28d",
+        "android_client_info": {
+          "package_name": "com.example.triporganizer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "62225854328-7film50m79e3ajj8ltoiogcjuheavski.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDEebwI_Nrx9o7nBGZmlXxZGcFYNjs5cfA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "62225854328-7film50m79e3ajj8ltoiogcjuheavski.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
