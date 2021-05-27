@@ -47,23 +47,16 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        checkUserLogin(user);
-
-
-
-    }
-
-    // if user has logged in before, start MainActivity
-    private void checkUserLogin(FirebaseUser user) {
         if(user != null){
-//            Log.d("CREATION", "User je ulogiran");
-//            Toast.makeText(LoginActivity.this, "Logiran si", Toast.LENGTH_LONG).show();
+            Log.d("CREATION", "User je logiran");
+            Toast.makeText(LoginActivity.this, "Logiran si", Toast.LENGTH_LONG).show();
             finish();
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
         } else {
-//            Log.d("CREATION", "User nije ulogiran!!!");
-            Toast.makeText(LoginActivity.this, "Nije logiran user", Toast.LENGTH_LONG).show();
+            Log.d("CREATION", "User NI logiran!!!");
+            Toast.makeText(LoginActivity.this, "Ni logiran user", Toast.LENGTH_LONG).show();
         }
+
     }
 
     @Override
@@ -81,7 +74,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    // User Log in
     private void userLogIn() {
         String email = editTextEmail.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();

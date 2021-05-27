@@ -15,6 +15,8 @@ import android.content.Intent;
 import android.icu.text.UnicodeSetSpanner;
 import android.os.Bundle;
 import android.os.Debug;
+import android.provider.ContactsContract;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,6 +32,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.DateFormat;
 import java.util.Calendar;
@@ -47,19 +54,51 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        FloatingActionButton fab = findViewById(R.id.fab_btn);
         drawer = findViewById(R.id.drawer_layout);
-
+        card1 = findViewById(R.id.card_view);
+        FloatingActionButton fab = findViewById(R.id.fab_btn);
         NavigationView navigationView = findViewById(R.id.nav_view);
+
         navigationView.setNavigationItemSelectedListener(this);
 
-        card1 = findViewById(R.id.card_view);
-        System.out.println(card1);
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference reference = database.getReference("Trips");
+
+        Log.i("OUR INFO", "Predprint");
+
+//        reference.child("-Ma_pinbzr411Hfy2TOx").child("name").get()
+        reference.child("-Ma_pZKITe10U2JBTm6S").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Log.i("OUR INFO", "Printaj");
+                Trip tripic = snapshot.getValue(Trip.class);
+                Log.i("OUR INFO", String.valueOf(snapshot.getValue()));
+
+                Log.i("TRIPOVI", tripic.getName());
+                Log.i("TRIPOVI", tripic.getLocation());
+                Log.i("TRIPOVI", String.valueOf(tripic.getLatitude()));
+                Log.i("TRIPOVI", String.valueOf(tripic.getLongitude()));
+                Log.i("TRIPOVI", tripic.getOwnerID());
+
+
+
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+
+
+
 
         // hamburger toolbar
         androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        // actionbar drawer toggle
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -71,12 +110,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View v) {
                 Toast.makeText(MainActivity.this, "you clikced on fab button", Toast.LENGTH_LONG).show();
-                openNewTripDialog();
+//                openNewTripDialog();
+                startActivity(new Intent(MainActivity.this, NewTripActivity.class));
             }
         });
 
-
-
+        // TEMP - NOT USED
         card1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -84,32 +123,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-
-//        btn_time.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                final Calendar calendar = Calendar.getInstance();
-//                TimePickerDialog timePickerDialog = new TimePickerDialog(MainActivity.this, new TimePickerDialog.OnTimeSetListener() {
-//                        @Override
-//                        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-//                            hour = hourOfDay;
-//                            min = minute;
-////                            Toast.makeText(getApplicationContext(), hour+":"+minute, Toast.LENGTH_SHORT).show();
-//                            calend ar.set(0,0,0,hour,min);
-////                            newTripTime.setText(DateFormat.format("hh:mm aa", calendar));
-//
-//                        }
-//                    }, 12, 0, true);
-//                timePickerDialog.show();
-//                Toast.makeText(MainActivity.this, "kakica", Toast.LENGTH_LONG).show();
-//            }
-//        });
     }
 
+    // open trip activity
     private void openTripActivity() {
         Intent intent = new Intent(this, TripActivity.class);
         startActivity(intent);
     }
+
 
     // close navigation drawer
     @Override
@@ -121,27 +142,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    //new trip dialog
+
+    //new trip dialog - NOT USING
     public void openNewTripDialog() {
         DialogNewTrip dialogNewTrip = new DialogNewTrip();
         dialogNewTrip.show(getSupportFragmentManager(), "new trip dialog");
 
     }
 
-    public void openTimePicker(View view) {
-//        Toast.makeText(MainActivity.this, "kakica", Toast.LENGTH_LONG).show();
-        Calendar calendar = Calendar.getInstance();
-        TimePickerDialog timePickerDialog = new TimePickerDialog(MainActivity.this, new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker view, int hourOfDay, int min) {
-                hour = hourOfDay;
-                minute = min;
-//                Toast.makeText(getApplicationContext(), hour+":"+minute, Toast.LENGTH_SHORT).show();
-            }
-        }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
-        timePickerDialog.show();
-    }
 
+    // clickListener on navigation items
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){

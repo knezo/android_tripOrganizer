@@ -2,6 +2,11 @@ apply plugin: 'com.android.application'
 
 apply plugin: 'com.google.gms.google-services'
 
+// for hiding API key
+def Properties properties = new Properties()
+properties.load(project.rootProject.file("local.properties").newDataInputStream())
+
+
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
@@ -14,6 +19,9 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // API KEY
+        resValue "string", "MAPS_API_KEY", properties.getProperty("MAPS_API_KEY", "")
     }
 
     buildTypes {
@@ -50,6 +58,7 @@ dependencies {
 
     implementation platform('com.google.firebase:firebase-bom:28.0.1')
     implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.android.libraries.places:places:2.4.0'
 
 
 //    implementation platform('com.google.firebase:firebase-bom:28.0.1')

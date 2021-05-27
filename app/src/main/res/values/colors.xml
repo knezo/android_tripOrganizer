@@ -7,4 +7,9 @@
     <color name="greenish">#75C185</color>
     <color name="gray">#B6B6B6</color>
     <color name="lightGray">#E6E6E6</color>
+    <color name="darkGreen">#1D8E02</color>
+    <color name="transparentGray">#43CDCDCD</color>
+    <color name="transpaent">#00FFFFFF</color>
+
+
 </resources>
