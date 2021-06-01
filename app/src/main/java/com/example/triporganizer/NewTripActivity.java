@@ -24,9 +24,15 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import static java.lang.Integer.parseInt;
 
 
 public class NewTripActivity extends AppCompatActivity {
@@ -34,6 +40,7 @@ public class NewTripActivity extends AppCompatActivity {
     private EditText etName, etLocation, etLat, etLng, etDate, etTime;
     private Button btnAdd;
     private ImageButton ibClearLocation;
+    Timer timer;
 
     FirebaseDatabase database;
     DatabaseReference reference;
@@ -117,19 +124,48 @@ public class NewTripActivity extends AppCompatActivity {
 
         database = FirebaseDatabase.getInstance();
         reference = database.getReference("Trips");
+        timer = new Timer();
 
+        //get all values for database
         String name = etName.getText().toString().trim();
         String location = etLocation.getText().toString().trim();
         float lat = Float.parseFloat(etLat.getText().toString());
         float lng = Float.parseFloat(etLng.getText().toString());
         String ownerID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-//        Trip trip = new Trip(name, location, lat, lng, ownerID);
-//        String tripKey = reference.push().getKey();
+        String tmp = etTime.getText().toString();
+        String[] arrTmp = tmp.split(":");
+        int timeHour = parseInt(arrTmp[0]);
+        int timeMin = parseInt(arrTmp[1]);
 
-//        reference.child(tripKey).setValue(trip);
+        tmp = etDate.getText().toString();
+        arrTmp = tmp.split("[.]");
 
-        Toast.makeText(NewTripActivity.this, "Location"+ location, Toast.LENGTH_LONG).show();
+        int dateDay = parseInt(arrTmp[0]);
+        int dateMonth = parseInt(arrTmp[1]);
+        int dateYear = parseInt(arrTmp[2]);
+
+        Calendar calendar = new GregorianCalendar(dateYear, dateMonth-1, dateDay, timeHour, timeMin);
+        long date = calendar.getTimeInMillis();
+
+
+        // push new trip to database
+        Trip trip = new Trip(name, location, lat, lng, ownerID, date);
+        String tripKey = reference.push().getKey();
+        reference.child(tripKey).setValue(trip);
+
+        // short delay and notification for new trip
+        Toast.makeText(NewTripActivity.this, "New trip added!", Toast.LENGTH_LONG).show();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+//                Intent intent = new Intent(NewTripActivity.this, MainActivity.class);
+//                startActivity(intent);
+                finish();
+            }
+        }, 1000);
+
+
     }
 
     //check if editexts are valid

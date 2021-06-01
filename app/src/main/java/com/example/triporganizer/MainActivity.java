@@ -7,6 +7,8 @@ import androidx.appcompat.view.menu.MenuView;
 import androidx.cardview.widget.CardView;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -20,14 +22,17 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -38,12 +43,23 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout drawer;
+    private ProgressBar progressBar;
+    private RecyclerView rvTripList;
+    private DatabaseReference databaseReference;
+    private TripAdapter tripAdapter;
+    ArrayList<Trip> trips;
+    ArrayList<String> tripKeys;
+
     int minute, hour;
     CardView card1;
 
@@ -54,35 +70,46 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //init
         drawer = findViewById(R.id.drawer_layout);
-        card1 = findViewById(R.id.card_view);
         FloatingActionButton fab = findViewById(R.id.fab_btn);
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        progressBar = findViewById(R.id.pbTrips);
 
+        // navigation
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference reference = database.getReference("Trips");
+        //database
 
-        Log.i("OUR INFO", "Predprint");
+        databaseReference = FirebaseDatabase.getInstance().getReference("Trips");
 
-//        reference.child("-Ma_pinbzr411Hfy2TOx").child("name").get()
-        reference.child("-Ma_pZKITe10U2JBTm6S").addListenerForSingleValueEvent(new ValueEventListener() {
+
+        // recycleView
+        rvTripList = (RecyclerView) findViewById(R.id.recycleviewTrips);
+        rvTripList.setHasFixedSize(true);
+        rvTripList.setLayoutManager(new LinearLayoutManager(this));
+
+        trips = new ArrayList<>();
+        tripKeys = new ArrayList<>();
+        tripAdapter = new TripAdapter(this, trips, tripKeys);
+        rvTripList.setAdapter(tripAdapter);
+        // TODO: ako se nema šta prikazati u recycleview-u?
+
+        // TODO: "bolji" query koji će pokazivat samo nadolazeće izlete
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Log.i("OUR INFO", "Printaj");
-                Trip tripic = snapshot.getValue(Trip.class);
-                Log.i("OUR INFO", String.valueOf(snapshot.getValue()));
+                progressBar.setVisibility(View.GONE);
+                trips.clear();
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
 
-                Log.i("TRIPOVI", tripic.getName());
-                Log.i("TRIPOVI", tripic.getLocation());
-                Log.i("TRIPOVI", String.valueOf(tripic.getLatitude()));
-                Log.i("TRIPOVI", String.valueOf(tripic.getLongitude()));
-                Log.i("TRIPOVI", tripic.getOwnerID());
+                    Trip trip = dataSnapshot.getValue(Trip.class);
+                    trips.add(trip);
 
-
-
-
+                    String tripKey = dataSnapshot.getKey();
+                    tripKeys.add(tripKey);
+                }
+                tripAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -92,6 +119,41 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
 
+
+//        Calendar c = new GregorianCalendar();
+//        Log.d("TIME", String.valueOf(c.getTimeInMillis()));
+//
+//        Timestamp t = new Timestamp(c.getTimeInMillis());
+//        Log.d("TIME", String.valueOf(t.getTime()));
+//
+//        reference.orderByChild("name").equalTo("Klekec").addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+////                Log.i("OUR INFO", "Printaj");
+////                Trip tripic = snapshot.getValue(Trip.class);
+//                Log.i("OUR INFO", String.valueOf(snapshot.getValue()));
+//
+////                Log.i("TRIPOVI", tripic.getName());
+////                Log.i("TRIPOVI", tripic.getLocation());
+////                Log.i("TRIPOVI", String.valueOf(tripic.getLatitude()));
+////                Log.i("TRIPOVI", String.valueOf(tripic.getLongitude()));
+////                Log.i("TRIPOVI", tripic.getOwnerID());
+////                Log.i("TRIPOVI", String.valueOf(tripic.getDate()));
+////
+////                long date = tripic.getDate();
+////                Timestamp t = new Timestamp(date);
+////                Date d = new Date(t.getTime());
+////
+////                Log.d("TRIPOVI", String.valueOf(d.getMinutes()));
+////                Log.d("TRIPOVI", String.valueOf(d));
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
 
 
 
@@ -116,14 +178,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
         // TEMP - NOT USED
-        card1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openTripActivity();
-            }
-        });
+//        card1.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                openTripActivity();
+//            }
+//        });
 
     }
+
+
+
 
     // open trip activity
     private void openTripActivity() {

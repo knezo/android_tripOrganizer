@@ -1,26 +1,25 @@
 package com.example.triporganizer;
 
-import java.util.Date;
 
 public class Trip {
 
     private String name, location;
     private float latitude, longitude;
-//    private Date date;
     private String ownerID;
-
+    private long date;
 
 
     public Trip(){
 
     }
 
-    public Trip(String name, String location, float latitude, float longitude, String ownerID) {
+    public Trip(String name, String location, float latitude, float longitude, String ownerID, long date) {
         this.name = name;
         this.location = location;
         this.latitude = latitude;
         this.longitude = longitude;
         this.ownerID = ownerID;
+        this.date = date;
     }
 
     public String getName() {
@@ -62,4 +61,13 @@ public class Trip {
     public void setOwnerID(String ownerID) {
         this.ownerID = ownerID;
     }
+
+    public long getDate() {
+        return date;
+    }
+
+    public void setDate(long date) {
+        this.date = date;
+    }
+
 }

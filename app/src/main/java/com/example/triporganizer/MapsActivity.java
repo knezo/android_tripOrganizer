@@ -14,11 +14,20 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    LatLng latLng;
+    float latitude, longitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        // Sidney - default
+        latLng = new LatLng(-34, 151);
+
+        latLng = getLatLng();
+
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -40,15 +49,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng zavizan = new LatLng(44.81456877697599, 14.975567748260124);
+//        LatLng zavizan = new LatLng(44.81456877697599, 14.975567748260124);
+
         LatLng sydney = new LatLng(-34, 151);
 //        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
         mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-        mMap.addMarker(new MarkerOptions().position(zavizan).title("Marker in Zavižan"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(zavizan, 10f));
+        mMap.addMarker(new MarkerOptions().position(latLng).title("Marker in Zavižan"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10f));
 
 
+    }
+
+    // get LatLng form intentExtra
+    private LatLng getLatLng(){
+        LatLng temp = new LatLng(45, 15);
+        if(getIntent().hasExtra("latitude") && getIntent().hasExtra("longitude")){
+            float lat = getIntent().getFloatExtra("latitude", 45);
+            float lng = getIntent().getFloatExtra("longitude", 15);
+//            float latitude = Float.parseFloat(getIntent().getStringExtra("latitude"));
+//            float longitude = Float.parseFloat(getIntent().getStringExtra("longitude"));
+
+            temp = new LatLng(lat, lng);
+
+        }
+        return temp;
     }
 }
