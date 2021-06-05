@@ -16,4 +16,7 @@
     <string name="trip_name">Trip name</string>
     <string name="title_activity_maps">Map</string>
     <string name="register"><u>REGISTER</u></string>
+    <string name="map">Map</string>
+    <string name="directions">Directions</string>
+    <string name="comments_amp_pictures"><![CDATA[Comments & Pictures]]></string>
 </resources>

@@ -10,6 +10,7 @@
     <color name="darkGreen">#1D8E02</color>
     <color name="transparentGray">#43CDCDCD</color>
     <color name="transpaent">#00FFFFFF</color>
+    <color name="darkGray">#474747</color>
 
 
 </resources>

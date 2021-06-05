@@ -15,8 +15,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".NewTripActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name=".CommentsActivity"></activity>
+        <activity android:name=".EditTripActivity" />
+        <activity
+            android:name=".NewTripActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".LoginActivity">
             <intent-filter>
@@ -43,7 +46,7 @@
         <activity android:name=".TripActivity" />
         <activity
             android:name=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

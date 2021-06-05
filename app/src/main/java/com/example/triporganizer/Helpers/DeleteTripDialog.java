@@ -1,4 +1,4 @@
-package com.example.triporganizer;
+package com.example.triporganizer.Helpers;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

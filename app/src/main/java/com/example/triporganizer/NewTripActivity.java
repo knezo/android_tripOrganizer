@@ -104,6 +104,7 @@ public class NewTripActivity extends AppCompatActivity {
             }
         });
 
+        // clear location, lat and lng when clicked X
         ibClearLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

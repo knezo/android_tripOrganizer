@@ -1,4 +1,4 @@
-package com.example.triporganizer;
+package com.example.triporganizer.Helpers;
 
 import android.content.Context;
 import android.content.Intent;
@@ -6,16 +6,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
+import com.example.triporganizer.R;
+import com.example.triporganizer.Trip;
+import com.example.triporganizer.TripActivity;
+
 import java.util.ArrayList;
-import java.util.Date;
 
 public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder> {
 
