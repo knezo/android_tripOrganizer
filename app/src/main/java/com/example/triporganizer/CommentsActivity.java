@@ -16,12 +16,14 @@ import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -33,6 +35,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
+
 
 import java.util.ArrayList;
 
@@ -102,6 +106,33 @@ public class CommentsActivity extends AppCompatActivity {
         }
 
 
+        ImageView imageView = findViewById(R.id.imageView1);
+
+        databaseReference.child("-MbTThgXTpYsPTXisydc").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Comment comment = snapshot.getValue(Comment.class);
+
+                Log.d("RETRIVE COMMENT", comment.getComment());
+                Log.d("RETRIVE COMMENT", comment.getUser());
+                Log.d("RETRIVE COMMENT", comment.getTripID());
+                Log.d("RETRIVE COMMENT", String.valueOf(comment.getTimestamp()));
+                Log.d("RETRIVE COMMENT", String.valueOf(comment.getPictures()));
+
+                ArrayList<String> images = new ArrayList<>();
+                images = comment.getPictures();
+
+                Log.d("COMMENT", "images[0g] - "+images.get(0));
+                Picasso.get().load(images.get(0)).into(imageView);
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
 
         ibChooseImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,23 +149,19 @@ public class CommentsActivity extends AppCompatActivity {
         });
     }
 
+
     private String getFileExtension(Uri uri) {
         ContentResolver cR = getContentResolver();
         MimeTypeMap mime = MimeTypeMap.getSingleton();
         return mime.getExtensionFromMimeType(cR.getType(uri));
     }
 
+
     private void uploadComment() {
         if (etComment.getText().toString().matches("")){
             etComment.setError("Please enter comment");
             etComment.requestFocus();
             return;
-        }
-
-        if (imageList == null){
-            Log.d("SLIKE", "imageList = null:" + imageList.toString());
-            Toast.makeText(this, "Nije izabrana slika", Toast.LENGTH_SHORT).show();
-
         }
 
         // if there is only text comment, no pictures
@@ -150,25 +177,43 @@ public class CommentsActivity extends AppCompatActivity {
 
         Uri lastImage = imageList.get(imageList.size()-1);
 
+        Log.d("SLIKE", "imageList: " + imageList.toString());
+        Log.d("SLIKE", "lastImageURI: " + lastImage.toString());
+
         for (int i = 0; i < imageList.size(); i++){
-//            Log.d("SLIKE", "slika: " + i);
             Uri imageUri = imageList.get(i);
-//            Log.d("SLIKE", "URI_ " + imageUri);
 
             StorageReference fileReference = storageReference.child(System.currentTimeMillis() + "." + getFileExtension(imageUri));
             fileReference.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                    // get image URL
+                    fileReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            String url = uri.toString();
+                            Log.d("SLIKE", "url: " + url);
+                            imagesUrl.add(url);
+                        }
+                    });
                     Log.d("SLIKE", "Uploadana je slika: " + imageUri);
-                    imagesUrl.add(String.valueOf(taskSnapshot));
+
 
                     // successfuly uploaded last image
                     if (imageUri == lastImage){
                         tvImageNumber.setVisibility(View.GONE);
                         pbComment.setVisibility(View.GONE);
-                        Log.d("SLIKE", "imagesURL delay: "+imagesUrl.toString());
 
-                        saveToDatabase();
+                        Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                Log.d("SLIKE", "imagesURL delay: "+imagesUrl.toString());
+                                saveToDatabase();
+                            }
+                        }, 3000);
+
                     }
                 }
             }).addOnFailureListener(new OnFailureListener() {
@@ -191,6 +236,7 @@ public class CommentsActivity extends AppCompatActivity {
 
     }
 
+    // save comment to database
     private void saveToDatabase(){
 
         long timestamp = System.currentTimeMillis();
@@ -247,6 +293,8 @@ public class CommentsActivity extends AppCompatActivity {
                     imageList.add(imageUri);
                     Log.d("SLIKE", "Upload - " + i + ":___" + imageUri);
                 }
+
+                countData = imageList.size();
 
                 tvImageNumber.setText("You have selected " + countData + " pictures.");
                 tvImageNumber.setVisibility(View.VISIBLE);
