@@ -19,4 +19,6 @@
     <string name="map">Map</string>
     <string name="directions">Directions</string>
     <string name="comments_amp_pictures"><![CDATA[Comments & Pictures]]></string>
+    <string name="user">User:</string>
+    <string name="vrijeme_i_datum">vrijeme i datum</string>
 </resources>

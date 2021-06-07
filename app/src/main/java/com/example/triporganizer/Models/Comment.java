@@ -1,4 +1,4 @@
-package com.example.triporganizer;
+package com.example.triporganizer.Models;
 
 import java.util.ArrayList;
 

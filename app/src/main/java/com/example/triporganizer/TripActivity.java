@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -17,6 +16,7 @@ import android.widget.Toast;
 
 import com.example.triporganizer.Helpers.DeleteTripDialog;
 import com.example.triporganizer.Helpers.Utils;
+import com.example.triporganizer.Models.Trip;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;

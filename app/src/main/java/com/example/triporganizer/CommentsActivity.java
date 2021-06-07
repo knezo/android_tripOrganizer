@@ -1,9 +1,5 @@
 package com.example.triporganizer;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -13,30 +9,35 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.triporganizer.Adapters.CommentAdapter;
+import com.example.triporganizer.Models.Comment;
+import com.example.triporganizer.Models.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
-
 
 import java.util.ArrayList;
 
@@ -49,11 +50,16 @@ public class CommentsActivity extends AppCompatActivity {
     ProgressBar pbComment;
     TextView tvImageNumber;
 
+    RecyclerView commentRecycleView;
+    CommentAdapter commentAdapter;
+    ArrayList<Comment> allComments;
+
     ArrayList<Uri> imageList = new ArrayList<>();
     ArrayList<String> imagesUrl = new ArrayList<>();
 
     StorageReference storageReference;
     DatabaseReference databaseReference;
+    DatabaseReference commentsReference;
     FirebaseAuth firebaseAuth;
 
     String userID;
@@ -61,7 +67,7 @@ public class CommentsActivity extends AppCompatActivity {
     String tripID;
 
     double uploadProgress;
-    boolean successfulUpload;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +85,7 @@ public class CommentsActivity extends AppCompatActivity {
 
         storageReference = FirebaseStorage.getInstance().getReference("pictures");
         databaseReference = FirebaseDatabase.getInstance().getReference("Comments");
+        commentsReference = FirebaseDatabase.getInstance().getReference("Comments");
 
 
         // get current userID and userName from database
@@ -106,25 +113,38 @@ public class CommentsActivity extends AppCompatActivity {
         }
 
 
-        ImageView imageView = findViewById(R.id.imageView1);
+        allComments = new ArrayList<>();
 
-        databaseReference.child("-MbTThgXTpYsPTXisydc").addListenerForSingleValueEvent(new ValueEventListener() {
+
+        commentRecycleView = findViewById(R.id.rv_comments);
+        commentRecycleView.setHasFixedSize(true);
+//        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+//        commentRecycleView.setLayoutManager(layoutManager);
+        commentRecycleView.setLayoutManager(new LinearLayoutManager(this));
+        commentAdapter = new CommentAdapter(this, allComments);
+        commentRecycleView.setAdapter(commentAdapter);
+
+        Query query = commentsReference
+                .orderByChild("tripID")
+                .equalTo(tripID);
+
+        query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Comment comment = snapshot.getValue(Comment.class);
+                allComments.clear();
 
-                Log.d("RETRIVE COMMENT", comment.getComment());
-                Log.d("RETRIVE COMMENT", comment.getUser());
-                Log.d("RETRIVE COMMENT", comment.getTripID());
-                Log.d("RETRIVE COMMENT", String.valueOf(comment.getTimestamp()));
-                Log.d("RETRIVE COMMENT", String.valueOf(comment.getPictures()));
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                    Comment comment = dataSnapshot.getValue(Comment.class);
+                    allComments.add(0, comment);
 
-                ArrayList<String> images = new ArrayList<>();
-                images = comment.getPictures();
-
-                Log.d("COMMENT", "images[0g] - "+images.get(0));
-                Picasso.get().load(images.get(0)).into(imageView);
-
+//                    try {
+//                        Log.d("COMMENTS", comment.getPictures().toString());
+//
+//                    } catch (Exception e){
+//                        Log.d("COMMENTS", "Comment nema slike:" + comment.getComment());
+//                    }
+                }
+                commentAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -132,6 +152,7 @@ public class CommentsActivity extends AppCompatActivity {
 
             }
         });
+
 
 
         ibChooseImage.setOnClickListener(new View.OnClickListener() {
@@ -177,8 +198,8 @@ public class CommentsActivity extends AppCompatActivity {
 
         Uri lastImage = imageList.get(imageList.size()-1);
 
-        Log.d("SLIKE", "imageList: " + imageList.toString());
-        Log.d("SLIKE", "lastImageURI: " + lastImage.toString());
+//        Log.d("SLIKE", "imageList: " + imageList.toString());
+//        Log.d("SLIKE", "lastImageURI: " + lastImage.toString());
 
         for (int i = 0; i < imageList.size(); i++){
             Uri imageUri = imageList.get(i);

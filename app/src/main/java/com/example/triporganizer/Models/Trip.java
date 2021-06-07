@@ -1,4 +1,4 @@
-package com.example.triporganizer;
+package com.example.triporganizer.Models;
 
 
 public class Trip {

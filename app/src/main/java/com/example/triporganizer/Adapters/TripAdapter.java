@@ -1,4 +1,4 @@
-package com.example.triporganizer.Helpers;
+package com.example.triporganizer.Adapters;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,8 +11,9 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.triporganizer.Helpers.Utils;
 import com.example.triporganizer.R;
-import com.example.triporganizer.Trip;
+import com.example.triporganizer.Models.Trip;
 import com.example.triporganizer.TripActivity;
 
 import java.util.ArrayList;

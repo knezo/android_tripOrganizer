@@ -11,6 +11,7 @@
     <color name="transparentGray">#43CDCDCD</color>
     <color name="transpaent">#00FFFFFF</color>
     <color name="darkGray">#474747</color>
+    <color name="lightGray1">#F0F0F0</color>
 
 
 </resources>

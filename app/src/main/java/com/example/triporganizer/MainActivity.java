@@ -15,7 +15,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.triporganizer.Helpers.TripAdapter;
+import com.example.triporganizer.Adapters.TripAdapter;
+import com.example.triporganizer.Models.Trip;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
