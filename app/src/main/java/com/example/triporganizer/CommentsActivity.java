@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -49,10 +51,12 @@ public class CommentsActivity extends AppCompatActivity {
     EditText etComment;
     ProgressBar pbComment;
     TextView tvImageNumber;
+    TextView tvNoComments;
 
     RecyclerView commentRecycleView;
     CommentAdapter commentAdapter;
     ArrayList<Comment> allComments;
+    ArrayList<String> commentsIDs;
 
     ArrayList<Uri> imageList = new ArrayList<>();
     ArrayList<String> imagesUrl = new ArrayList<>();
@@ -61,6 +65,7 @@ public class CommentsActivity extends AppCompatActivity {
     DatabaseReference databaseReference;
     DatabaseReference commentsReference;
     FirebaseAuth firebaseAuth;
+
 
     String userID;
     String userName;
@@ -74,12 +79,18 @@ public class CommentsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comments);
 
+        //stop instant keyboard pop-up
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+
 
         ibChooseImage = findViewById(R.id.ib_choose_image);
         ibAddComment = findViewById(R.id.ib_add_comment);
         etComment = findViewById(R.id.et_comment);
         pbComment = findViewById(R.id.progressBar_comment);
         tvImageNumber = findViewById(R.id.tv_image_num);
+        tvNoComments = findViewById(R.id.tv_noComments);
+
 
         getIncomingIntent();
 
@@ -114,6 +125,7 @@ public class CommentsActivity extends AppCompatActivity {
 
 
         allComments = new ArrayList<>();
+        commentsIDs = new ArrayList<>();
 
 
         commentRecycleView = findViewById(R.id.rv_comments);
@@ -121,8 +133,10 @@ public class CommentsActivity extends AppCompatActivity {
 //        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
 //        commentRecycleView.setLayoutManager(layoutManager);
         commentRecycleView.setLayoutManager(new LinearLayoutManager(this));
-        commentAdapter = new CommentAdapter(this, allComments);
+        commentAdapter = new CommentAdapter(this, allComments, commentsIDs);
+//        new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(commentRecycleView);
         commentRecycleView.setAdapter(commentAdapter);
+
 
         Query query = commentsReference
                 .orderByChild("tripID")
@@ -131,11 +145,21 @@ public class CommentsActivity extends AppCompatActivity {
         query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                if (!snapshot.hasChildren()){
+                    tvNoComments.setVisibility(View.VISIBLE);
+                } else {
+                    tvNoComments.setVisibility(View.GONE);
+                }
+
+
                 allComments.clear();
+                commentsIDs.clear();
 
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()){
                     Comment comment = dataSnapshot.getValue(Comment.class);
                     allComments.add(0, comment);
+                    commentsIDs.add(0, dataSnapshot.getKey());
 
 //                    try {
 //                        Log.d("COMMENTS", comment.getPictures().toString());
@@ -346,4 +370,21 @@ public class CommentsActivity extends AppCompatActivity {
 //            Toast.makeText(this, tripID, Toast.LENGTH_SHORT).show();
         }
     }
+
+    //swipe to delete comment
+
+//    ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
+//        @Override
+//        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+//            return false;
+//        }
+//
+//        @Override
+//        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+////            Toast.makeText(CommentsActivity.this, "Swipano", Toast.LENGTH_SHORT).show();
+//            commentAdapter.deleteComment(viewHolder.getAdapterPosition());
+////            commentAdapter.notifyDataSetChanged();
+//
+//        }
+//    };
 }

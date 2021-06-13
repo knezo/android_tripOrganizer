@@ -1,21 +1,29 @@
 package com.example.triporganizer.Adapters;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.triporganizer.Helpers.Utils;
 import com.example.triporganizer.Models.Comment;
 import com.example.triporganizer.R;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,10 +31,12 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
 
     Context context;
     ArrayList<Comment> allComments;
+    ArrayList<String> commentsIDs;
 
-    public CommentAdapter(Context context, ArrayList<Comment> allComments) {
+    public CommentAdapter(Context context, ArrayList<Comment> allComments, ArrayList<String> commentsIDs) {
         this.context = context;
         this.allComments = allComments;
+        this.commentsIDs = commentsIDs;
     }
 
     @NonNull
@@ -60,22 +70,51 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         if (picturesExists){
             setImageRecycler(holder.commentImagesRecycler, allComments.get(position).getPictures());
         }
+        
+        holder.cardViewParent.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+//                Toast.makeText(context, "Long click", Toast.LENGTH_SHORT).show();
+                showDeleteDialog(context, position);
+                return false;
+            }
+        });
 
 
-//        try {
-//            setImageRecyclcer(holder.commentImagesRecycler, allComments.get(position).getPictures());
-//        } catch (Exception e){
-//
-//        }
-//        if (!allComments.get(position).getPictures().isEmpty()){
-//            Log.d("COMMENT", "nije prazan pictures");
-//            setImageRecyclcer(holder.commentImagesRecycler, allComments.get(position).getPictures());
-//        }
+
     }
 
     @Override
     public int getItemCount() {
         return allComments.size();
+    }
+
+    private void showDeleteDialog(Context context, int position){
+        AlertDialog.Builder alert = new AlertDialog.Builder(context);
+        alert.setTitle("Comment delete");
+        alert.setMessage("Delete this comment?");
+        alert.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+//                Toast.makeText(context, "izbriši", Toast.LENGTH_SHORT).show();
+                deleteComment(position);
+            }
+        });
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        alert.create().show();
+
+    }
+
+    public void deleteComment(int position){
+        String str = allComments.get(position).getComment();
+//        Toast.makeText(context, str, Toast.LENGTH_SHORT).show();
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Comments");
+        databaseReference.child(commentsIDs.get(position)).removeValue();
     }
 
     public static class CommentViewHolder extends RecyclerView.ViewHolder{
@@ -84,6 +123,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         TextView commentText;
         TextView commentTime;
         RecyclerView commentImagesRecycler;
+        CardView cardViewParent;
 
 
         public CommentViewHolder(@NonNull View itemView) {
@@ -93,6 +133,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
             commentText = itemView.findViewById(R.id.tv_comment_text);
             commentTime = itemView.findViewById(R.id.tv_comment_time);
             commentImagesRecycler = itemView.findViewById(R.id.rv_images);
+            cardViewParent = itemView.findViewById(R.id.cardview_comment);
         }
     }
 

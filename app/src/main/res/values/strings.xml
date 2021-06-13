@@ -21,4 +21,6 @@
     <string name="comments_amp_pictures"><![CDATA[Comments & Pictures]]></string>
     <string name="user">User:</string>
     <string name="vrijeme_i_datum">vrijeme i datum</string>
+    <string name="there_are_no_comments_yet">There are no comments yet.</string>
+    <string name="add_task">Add task</string>
 </resources>

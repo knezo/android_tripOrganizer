@@ -2,10 +2,13 @@ package com.example.triporganizer;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -14,24 +17,41 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.triporganizer.Adapters.TasklistAdapter;
+import com.example.triporganizer.Helpers.AddUserToTripDialog;
 import com.example.triporganizer.Helpers.DeleteTripDialog;
 import com.example.triporganizer.Helpers.Utils;
+import com.example.triporganizer.Models.Task;
+import com.example.triporganizer.Models.Tasklist;
 import com.example.triporganizer.Models.Trip;
+import com.example.triporganizer.Models.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener, DeleteTripDialog.DeleteTripDialogListener {
+import java.util.ArrayList;
+
+public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener, DeleteTripDialog.DeleteTripDialogListener, AddUserToTripDialog.AddUserToTripDialogListener {
 
     TextView tvTripName, tvTripTime, tvTripDate;
-    DatabaseReference databaseReference;
-    ValueEventListener valueEventListener;
     Button btnMap, btnGoogleMaps, btnComments;
     ImageButton ibTripOptions;
+
     String tripID;
     Float latitude, longitude;
+    String newUserID;
+    String newUserUsername;
+
+    DatabaseReference databaseReference;
+    DatabaseReference tasklistReference;
+    ValueEventListener valueEventListener;
+
+    RecyclerView tasklistRecycleview;
+    TasklistAdapter tasklistAdapter;
+    ArrayList<Tasklist> allTasklists;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +63,8 @@ public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         tvTripDate = findViewById(R.id.tripDate);
 
         getIncomingIntent();
+
+        allTasklists = new ArrayList<>();
 
         // get Trip data and display it
         databaseReference = FirebaseDatabase.getInstance().getReference("Trips");
@@ -71,6 +93,36 @@ public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             }
         };
         databaseReference.child(tripID).addValueEventListener(valueEventListener);
+
+
+        tasklistRecycleview = findViewById(R.id.rv_trip_tasklists);
+        tasklistRecycleview.setHasFixedSize(true);
+        tasklistRecycleview.setLayoutManager(new LinearLayoutManager(this));
+        tasklistAdapter =  new TasklistAdapter(this, allTasklists);
+        tasklistRecycleview.setAdapter(tasklistAdapter);
+
+        // get trips tasklists
+        tasklistReference = FirebaseDatabase.getInstance().getReference("Tasklists");
+        tasklistReference.orderByChild("tripID").equalTo(tripID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                allTasklists.clear();
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                    Tasklist tasklist = dataSnapshot.getValue(Tasklist.class);
+                    Log.d("TASK", "tasklist id: " + tasklist.getTasklistID());
+                    allTasklists.add(tasklist);
+                    // TODO: tu nastavi
+                }
+                tasklistAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+
 
         // open Map activity
         btnMap = findViewById(R.id.btn_map);
@@ -147,10 +199,15 @@ public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         }
     }
 
-    // trip options - edit or delete
+    // trip options - addUser, edit or delete
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.popup_trip_adduser:
+                Toast.makeText(this, "Dodaješ usera", Toast.LENGTH_SHORT).show();
+                AddUserToTripDialog addUserToTripDialog = new AddUserToTripDialog(this);
+                addUserToTripDialog.show(getSupportFragmentManager(), "adduser dialog");
+                return true;
             case R.id.popup_trip_edit:
 //                Toast.makeText(this, "edit", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(this, EditTripActivity.class);
@@ -180,4 +237,67 @@ public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         finish();
 
     }
+
+
+    // add user via dialog
+    @Override
+    public void onAddClicked(String username) {
+
+        newUserID = "";
+        newUserUsername = username;
+
+        FirebaseDatabase.getInstance().getReference("Users")
+                .orderByChild("username").equalTo(username).limitToFirst(1)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                            User user = dataSnapshot.getValue(User.class);
+                            newUserID = user.userID;
+
+                            Log.d("USER", "Id dodanog usera je: " + newUserID);
+                            Log.d("USER", "user je: " + user.toString());
+
+                        }
+                        
+                        // if successfully got userID from username 
+                        //      -> create new tasklist for new user
+                        //      -> add new user to trip
+                        if (!newUserID.equals("")){
+                            Toast.makeText(TripActivity.this, "Ok je", Toast.LENGTH_SHORT).show();
+                            addUsertoTrip();
+
+                        } else {
+                            Toast.makeText(TripActivity.this, "Sorry, couldn't add user to trip, try again.", Toast.LENGTH_LONG).show();
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
+
+//        Tasklist tasklist = new Tasklist(tasklistID, )
+
+//        Toast.makeText(this, username, Toast.LENGTH_SHORT).show();
+    }
+
+
+    //      -> create new tasklist for new user
+    //      -> add new user to trip
+    private void addUsertoTrip() {
+        String tasklistID = tasklistReference.push().getKey();
+        String tripID_userID = tripID + "_" + newUserID;
+        ArrayList<Task> tasks = null;
+
+        Tasklist tasklist = new Tasklist(tasklistID, tripID, newUserID, tripID_userID, newUserUsername, tasks);
+        FirebaseDatabase.getInstance().getReference("Tasklists").child(tasklistID).setValue(tasklist);
+
+        //TODO: dodaje usera tripu
+    }
+
+
 }

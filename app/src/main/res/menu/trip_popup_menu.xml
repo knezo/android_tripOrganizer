@@ -4,6 +4,10 @@
     tools:showIn="">
 
     <item
+        android:id="@+id/popup_trip_adduser"
+        android:title="Add user to trip"
+        />
+    <item
         android:id="@+id/popup_trip_edit"
         android:icon="@drawable/ic_edit_black_24dp"
         android:title="Edit trip"/>

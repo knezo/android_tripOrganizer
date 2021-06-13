@@ -1,5 +1,6 @@
 package com.example.triporganizer;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -7,6 +8,7 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -15,16 +17,23 @@ import android.widget.ImageButton;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.example.triporganizer.Models.Task;
+import com.example.triporganizer.Models.Tasklist;
 import com.example.triporganizer.Models.Trip;
+import com.example.triporganizer.Models.User;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -44,6 +53,10 @@ public class NewTripActivity extends AppCompatActivity {
 
     FirebaseDatabase database;
     DatabaseReference reference;
+    DatabaseReference tasklistReference;
+    DatabaseReference userReference;
+    String username;
+    String userID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +74,27 @@ public class NewTripActivity extends AppCompatActivity {
 
         // Places API
         Places.initialize(getApplicationContext(), getString(R.string.MAPS_API_KEY));
+
+        database = FirebaseDatabase.getInstance();
+
+        // get user
+        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        userReference = database.getReference("Users");
+//        Log.d("USER", "UserID:"+userID);
+        userReference.child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User user = snapshot.getValue(User.class);
+                assert user != null;
+                username = user.username;
+//                Log.d("USER", "Username " + username );
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
 
 
         // click listener for Time picker
@@ -117,13 +151,14 @@ public class NewTripActivity extends AppCompatActivity {
 
 
     // create new trip in database
+    // croate tasklist for current user and new trip
     private void addNewTrip() {
         //if editTexts not valid -> return
         if(!checkEditTexts()){
             return;
         }
 
-        database = FirebaseDatabase.getInstance();
+
         reference = database.getReference("Trips");
         timer = new Timer();
 
@@ -132,7 +167,7 @@ public class NewTripActivity extends AppCompatActivity {
         String location = etLocation.getText().toString().trim();
         float lat = Float.parseFloat(etLat.getText().toString());
         float lng = Float.parseFloat(etLng.getText().toString());
-        String ownerID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
 
         String tmp = etTime.getText().toString();
         String[] arrTmp = tmp.split(":");
@@ -149,11 +184,26 @@ public class NewTripActivity extends AppCompatActivity {
         Calendar calendar = new GregorianCalendar(dateYear, dateMonth-1, dateDay, timeHour, timeMin);
         long date = calendar.getTimeInMillis();
 
-
         // push new trip to database
-        Trip trip = new Trip(name, location, lat, lng, ownerID, date);
+        Trip trip = new Trip(name, location, lat, lng, userID, date);
         String tripKey = reference.push().getKey();
         reference.child(tripKey).setValue(trip);
+
+
+
+
+        // make tasklist for trip and user
+        tasklistReference = database.getReference("Tasklists");
+        String tasklistID = tasklistReference.push().getKey();
+        String userID_tripID = userID + "_" + tripKey;
+
+        ArrayList<Task> tasks = null;
+
+        Log.d("USER", "Username prije tasklista: " + username );
+        Tasklist tasklist = new Tasklist(tasklistID, tripKey, userID, userID_tripID, username, tasks);
+        tasklistReference.child(tasklistID).setValue(tasklist);
+
+
 
         // short delay and notification for new trip
         Toast.makeText(NewTripActivity.this, "New trip added!", Toast.LENGTH_LONG).show();

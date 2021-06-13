@@ -1,6 +1,9 @@
 package com.example.triporganizer.Adapters;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +37,12 @@ public class CommentImageAdapter extends RecyclerView.Adapter<CommentImageAdapte
     public void onBindViewHolder(@NonNull CommentImageViewHolder holder, int position) {
 //        holder.commentImage.setImageResource(imageURLs.get(position));
         Picasso.get().load(imageURLs.get(position)).into(holder.commentImage);
+        holder.commentImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openImageDialog(position);
+            }
+        });
 
     }
 
@@ -46,6 +55,16 @@ public class CommentImageAdapter extends RecyclerView.Adapter<CommentImageAdapte
             itemCount = 0;
         }
         return itemCount;
+    }
+
+    private void openImageDialog(int position){
+        Dialog dialog = new Dialog(context);
+        dialog.setContentView(R.layout.image_popup);
+        ImageView imageView = dialog.findViewById(R.id.iv_bigImage);
+        Picasso.get().load(imageURLs.get(position)).into(imageView);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.show();
     }
 
     public static final class CommentImageViewHolder extends RecyclerView.ViewHolder{
