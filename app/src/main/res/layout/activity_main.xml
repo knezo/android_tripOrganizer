@@ -25,47 +25,48 @@
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
         <FrameLayout
+            android:id="@+id/fragment_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
     </LinearLayout>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="?attr/actionBarSize">
+<!--    <RelativeLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:layout_marginTop="?attr/actionBarSize">-->
 
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycleviewTrips"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="20dp">
-
-
-
-        </androidx.recyclerview.widget.RecyclerView>
-
-        <ProgressBar
-            android:id="@+id/pbTrips"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"/>
+<!--        <androidx.recyclerview.widget.RecyclerView-->
+<!--            android:id="@+id/recycleviewTrips"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:padding="20dp">-->
 
 
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_margin="32dp"
-            android:backgroundTint="@color/greenish"
-            android:src="@drawable/ic_add_white_24dp" />
+<!--        </androidx.recyclerview.widget.RecyclerView>-->
+
+<!--        <ProgressBar-->
+<!--            android:id="@+id/pbTrips"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_centerInParent="true"/>-->
 
 
-    </RelativeLayout>
+
+<!--        <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+<!--            android:id="@+id/fab_btn"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_alignParentBottom="true"-->
+<!--            android:layout_alignParentEnd="true"-->
+<!--            android:layout_margin="32dp"-->
+<!--            android:backgroundTint="@color/greenish"-->
+<!--            android:src="@drawable/ic_add_white_24dp" />-->
+
+
+<!--    </RelativeLayout>-->
 
 
 

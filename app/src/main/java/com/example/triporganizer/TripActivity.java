@@ -115,7 +115,6 @@ public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                     Tasklist tasklist = dataSnapshot.getValue(Tasklist.class);
                     Log.d("TASK", "tasklist id: " + tasklist.getTasklistID());
                     allTasklists.add(tasklist);
-                    // TODO: tu nastavi
                 }
                 tasklistAdapter.notifyDataSetChanged();
             }
@@ -250,7 +249,8 @@ public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         newUserID = "";
         newUserUsername = username;
 
-        //TODO: provjeri dodaje li već postojećeg usera za taj trip
+        ArrayList<String> currentTripMembers = currentTrip.getMembers();
+        
 
         FirebaseDatabase.getInstance().getReference("Users")
                 .orderByChild("username").equalTo(username).limitToFirst(1)
@@ -261,18 +261,16 @@ public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                             User user = dataSnapshot.getValue(User.class);
                             newUserID = user.userID;
 
-                            Log.d("USER", "Id dodanog usera je: " + newUserID);
-                            Log.d("USER", "user je: " + user.toString());
+                            // check if user is already member of trip
+                            if (currentTripMembers.contains(newUserID)){
+                                Toast.makeText(TripActivity.this, "User is already member of this trip!", Toast.LENGTH_LONG).show();
+                                return;
+                            }
 
                         }
-                        
-                        // if successfully got userID from username 
-                        //      -> create new tasklist for new user
-                        //      -> add new user to trip
-                        if (!newUserID.equals("")){
-                            Toast.makeText(TripActivity.this, "Ok je", Toast.LENGTH_SHORT).show();
-                            addUsertoTrip();
 
+                        if (!newUserID.equals("")){
+                            addUsertoTrip();
                         } else {
                             Toast.makeText(TripActivity.this, "Sorry, couldn't add user to trip, try again.", Toast.LENGTH_LONG).show();
                         }
@@ -286,9 +284,6 @@ public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 });
 
 
-//        Tasklist tasklist = new Tasklist(tasklistID, )
-
-//        Toast.makeText(this, username, Toast.LENGTH_SHORT).show();
     }
 
 
@@ -303,20 +298,13 @@ public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         FirebaseDatabase.getInstance().getReference("Tasklists").child(tasklistID).setValue(tasklist);
 
 
-
-        //TODO: dodaje usera tripu
         ArrayList<String> members = currentTrip.getMembers();
         members.add(newUserID);
-//        Log.d("USER", "trip members: " + members.toString());
-
 
         Map<String, Object> tripUpdate = new HashMap<>();
         tripUpdate.put("members", members);
 
-//        Log.d("USER", "trip update: " + tripUpdate.toString());
-
         databaseReference.child(tripID).updateChildren(tripUpdate);
-
 
     }
 

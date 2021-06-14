@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,7 +18,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.triporganizer.Adapters.TripAdapter;
+import com.example.triporganizer.Fragments.FutureTripsFragment;
+import com.example.triporganizer.Fragments.PastTripsFragment;
+import com.example.triporganizer.Fragments.ProfileFragment;
 import com.example.triporganizer.Models.Trip;
+import com.example.triporganizer.Models.User;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,12 +37,13 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout drawer;
-    private ProgressBar progressBar;
-    private TripAdapter tripAdapter;
-    ArrayList<Trip> trips;
-    ArrayList<String> tripKeys;
-
+//    private ProgressBar progressBar;
+//    private TripAdapter tripAdapter;
+//    ArrayList<Trip> trips;
+//    ArrayList<String> tripKeys;
+//
     String userID;
+    User user;
 
 
     @Override
@@ -47,66 +53,45 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //init
         drawer = findViewById(R.id.drawer_layout);
-        FloatingActionButton fab = findViewById(R.id.fab_btn);
-        progressBar = findViewById(R.id.pbTrips);
 
-        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        Log.d("USER", "current user id: " + userID);
 
         // navigation
         NavigationView navigationView = findViewById(R.id.nav_view);
+        View headerView = navigationView.getHeaderView(0);
+        TextView textView = headerView.findViewById(R.id.nav_username);
+
         navigationView.setNavigationItemSelectedListener(this);
+
+
+        // if user is logged in
+        if(FirebaseAuth.getInstance().getCurrentUser() != null){
+
+            userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            //get user from database
+            FirebaseDatabase.getInstance().getReference("Users")
+                    .child(userID)
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            user = snapshot.getValue(User.class);
+                            textView.setText(user.username);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+        }
 
         //database
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Trips");
 
 
-        // recycleView
-        RecyclerView rvTripList = findViewById(R.id.recycleviewTrips);
-        rvTripList.setHasFixedSize(true);
-        rvTripList.setLayoutManager(new LinearLayoutManager(this));
-
-        trips = new ArrayList<>();
-        tripKeys = new ArrayList<>();
-        tripAdapter = new TripAdapter(this, trips, tripKeys);
-        rvTripList.setAdapter(tripAdapter);
-        // TODO: ako se nema šta prikazati u recycleview-u?
-
-        // TODO: "bolji" query koji će dohvaćat samo nadolazeće izlete
-        databaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                progressBar.setVisibility(View.GONE);
-                trips.clear();
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
-
-                    Trip trip = dataSnapshot.getValue(Trip.class);
-                    String tripKey = dataSnapshot.getKey();
-
-                    assert trip != null;
-                    ArrayList<String> tripMembers = trip.getMembers();
-
-                    for (String member : tripMembers){
-                        if (member.equals(userID)){
-                            trips.add(trip);
-                            tripKeys.add(tripKey);
-                        }
-                    }
-
-                }
-                tripAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-
         // hamburger toolbar
         androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         // actionbar drawer toggle
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -114,13 +99,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
 
 
-        //add new trip floating action button
-        fab.setOnClickListener(v -> {
-            Toast.makeText(MainActivity.this, "you clikced on fab button", Toast.LENGTH_LONG).show();
-//                openNewTripDialog();
-            startActivity(new Intent(MainActivity.this, NewTripActivity.class));
-        });
-
+        // open future tips fragment when app opened
+        if (savedInstanceState == null){
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new FutureTripsFragment()).commit();
+            navigationView.setCheckedItem(R.id.nav_future_trips);
+        }
     }
 
 
@@ -140,24 +123,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
-            case R.id.nav_trips:
-                // TODO: vidi jel uopće treba imat Trips, možda imat Trips i past Trips
+            case R.id.nav_future_trips:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new FutureTripsFragment()).commit();
+                getSupportActionBar().setTitle("Future trips");
+                break;
+            case R.id.nav_past_trips:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new PastTripsFragment()).commit();
+                getSupportActionBar().setTitle("Past trips");
                 break;
             case R.id.nav_profile:
-                // TODO: dodat uređivanje profila korisnika
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ProfileFragment(user)).commit();
+                getSupportActionBar().setTitle("Profile");
                 break;
             case R.id.nav_logout:
-//                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-//                String name = user.getEmail();
-//                Toast.makeText(MainActivity.this, name, Toast.LENGTH_SHORT).show();
-
                 FirebaseAuth.getInstance().signOut();
                 startActivity(new Intent(MainActivity.this, LoginActivity.class));
                 finish();
-
                 break;
         }
-
+        drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 }
