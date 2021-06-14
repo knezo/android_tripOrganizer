@@ -184,8 +184,11 @@ public class NewTripActivity extends AppCompatActivity {
         Calendar calendar = new GregorianCalendar(dateYear, dateMonth-1, dateDay, timeHour, timeMin);
         long date = calendar.getTimeInMillis();
 
+        ArrayList<String> members = new ArrayList<>();
+        members.add(userID);
+
         // push new trip to database
-        Trip trip = new Trip(name, location, lat, lng, userID, date);
+        Trip trip = new Trip(name, location, lat, lng, members, date);
         String tripKey = reference.push().getKey();
         reference.child(tripKey).setValue(trip);
 

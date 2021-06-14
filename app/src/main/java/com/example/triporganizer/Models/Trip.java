@@ -1,11 +1,13 @@
 package com.example.triporganizer.Models;
 
 
+import java.util.ArrayList;
+
 public class Trip {
 
     private String name, location;
     private float latitude, longitude;
-    private String ownerID;
+    private ArrayList<String> members;
     private long date;
 
 
@@ -13,12 +15,12 @@ public class Trip {
 
     }
 
-    public Trip(String name, String location, float latitude, float longitude, String ownerID, long date) {
+    public Trip(String name, String location, float latitude, float longitude, ArrayList<String> members, long date) {
         this.name = name;
         this.location = location;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.ownerID = ownerID;
+        this.members = members;
         this.date = date;
     }
 
@@ -54,12 +56,12 @@ public class Trip {
         this.longitude = longitude;
     }
 
-    public String getOwnerID() {
-        return ownerID;
+    public ArrayList<String> getMembers() {
+        return members;
     }
 
-    public void setOwnerID(String ownerID) {
-        this.ownerID = ownerID;
+    public void setMembers(ArrayList<String> members) {
+        this.members = members;
     }
 
     public long getDate() {

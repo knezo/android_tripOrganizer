@@ -16,6 +16,7 @@
         android:padding="8dp">
 
         <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/cb_task"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingStart="8dp"

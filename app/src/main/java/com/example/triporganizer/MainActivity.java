@@ -2,6 +2,7 @@ package com.example.triporganizer;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -36,6 +37,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     ArrayList<Trip> trips;
     ArrayList<String> tripKeys;
 
+    String userID;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,12 +50,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FloatingActionButton fab = findViewById(R.id.fab_btn);
         progressBar = findViewById(R.id.pbTrips);
 
+        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Log.d("USER", "current user id: " + userID);
+
         // navigation
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         //database
-
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Trips");
 
 
@@ -76,10 +81,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()){
 
                     Trip trip = dataSnapshot.getValue(Trip.class);
-                    trips.add(trip);
-
                     String tripKey = dataSnapshot.getKey();
-                    tripKeys.add(tripKey);
+
+                    assert trip != null;
+                    ArrayList<String> tripMembers = trip.getMembers();
+
+                    for (String member : tripMembers){
+                        if (member.equals(userID)){
+                            trips.add(trip);
+                            tripKeys.add(tripKey);
+                        }
+                    }
+
                 }
                 tripAdapter.notifyDataSetChanged();
             }

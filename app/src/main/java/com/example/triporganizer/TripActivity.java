@@ -32,6 +32,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener, DeleteTripDialog.DeleteTripDialogListener, AddUserToTripDialog.AddUserToTripDialogListener {
 
@@ -43,6 +45,8 @@ public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     Float latitude, longitude;
     String newUserID;
     String newUserUsername;
+
+    Trip currentTrip;
 
     DatabaseReference databaseReference;
     DatabaseReference tasklistReference;
@@ -71,15 +75,15 @@ public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Trip trip = snapshot.getValue(Trip.class);
+                currentTrip = snapshot.getValue(Trip.class);
 
-                assert trip != null;
-                tvTripName.setText(trip.getName());
-                tvTripTime.setText(Utils.timestampToTime(trip.getDate()));
-                tvTripDate.setText(Utils.timestampToDate(trip.getDate()));
+                assert currentTrip != null;
+                tvTripName.setText(currentTrip.getName());
+                tvTripTime.setText(Utils.timestampToTime(currentTrip.getDate()));
+                tvTripDate.setText(Utils.timestampToDate(currentTrip.getDate()));
 
-                latitude = trip.getLatitude();
-                longitude = trip.getLongitude();
+                latitude = currentTrip.getLatitude();
+                longitude = currentTrip.getLongitude();
 
 //                Log.d("BAZA", longitude.toString());
 //                Log.d("BAZA", latitude.toString());
@@ -246,6 +250,8 @@ public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         newUserID = "";
         newUserUsername = username;
 
+        //TODO: provjeri dodaje li već postojećeg usera za taj trip
+
         FirebaseDatabase.getInstance().getReference("Users")
                 .orderByChild("username").equalTo(username).limitToFirst(1)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -296,7 +302,22 @@ public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         Tasklist tasklist = new Tasklist(tasklistID, tripID, newUserID, tripID_userID, newUserUsername, tasks);
         FirebaseDatabase.getInstance().getReference("Tasklists").child(tasklistID).setValue(tasklist);
 
+
+
         //TODO: dodaje usera tripu
+        ArrayList<String> members = currentTrip.getMembers();
+        members.add(newUserID);
+//        Log.d("USER", "trip members: " + members.toString());
+
+
+        Map<String, Object> tripUpdate = new HashMap<>();
+        tripUpdate.put("members", members);
+
+//        Log.d("USER", "trip update: " + tripUpdate.toString());
+
+        databaseReference.child(tripID).updateChildren(tripUpdate);
+
+
     }
 
 

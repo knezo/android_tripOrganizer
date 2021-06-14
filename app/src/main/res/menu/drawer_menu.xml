@@ -4,19 +4,29 @@
     tools:showIn="navigation_view">
 
     <group android:checkableBehavior="single">
+        <item android:id="@+id/nav_future_trips"
+            android:icon="@drawable/ic_terrain_black_24dp"
+            android:title="Future trips"/>
         <item
             android:id="@+id/nav_trips"
-            android:icon="@drawable/ic_terrain_black_24dp"
-            android:title="@string/trips" />
+            android:icon="@drawable/ic_today_black_24dp"
+            android:title="Past trips" />
         <item
             android:id="@+id/nav_profile"
             android:icon="@drawable/ic_person_outline_black_24dp"
             android:title="@string/profile" />
-        <item
-            android:id="@+id/nav_logout"
-            android:icon="@drawable/ic_arrow_back_black_24dp"
-            android:title="@string/log_out" />
+
     </group>
+
+    <item android:title="Options">
+        <menu>
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@drawable/ic_arrow_back_black_24dp"
+                android:title="@string/log_out" />
+        </menu>
+
+    </item>
 
 
 
