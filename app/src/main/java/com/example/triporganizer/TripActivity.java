@@ -21,10 +21,13 @@ import com.example.triporganizer.Adapters.TasklistAdapter;
 import com.example.triporganizer.Helpers.AddUserToTripDialog;
 import com.example.triporganizer.Helpers.DeleteTripDialog;
 import com.example.triporganizer.Helpers.Utils;
+import com.example.triporganizer.Models.Notification;
 import com.example.triporganizer.Models.Task;
 import com.example.triporganizer.Models.Tasklist;
 import com.example.triporganizer.Models.Trip;
 import com.example.triporganizer.Models.User;
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,6 +35,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,6 +51,8 @@ public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     String newUserUsername;
 
     Trip currentTrip;
+    ArrayList<String> currentTripMembers = new ArrayList<>();
+    User currentUser;
 
     DatabaseReference databaseReference;
     DatabaseReference tasklistReference;
@@ -78,6 +84,8 @@ public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 currentTrip = snapshot.getValue(Trip.class);
 
+                currentTripMembers = currentTrip.getMembers();
+
                 assert currentTrip != null;
                 tvTripName.setText(currentTrip.getName());
                 tvTripTime.setText(Utils.timestampToTime(currentTrip.getDate()));
@@ -104,6 +112,20 @@ public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         databaseReference.child(tripID).addValueEventListener(valueEventListener);
 
 
+        // get current (logged in) User;
+        String currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseDatabase.getInstance().getReference("Users").child(currentUserID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                currentUser = snapshot.getValue(User.class);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
         tasklistRecycleview = findViewById(R.id.rv_trip_tasklists);
         tasklistRecycleview.setHasFixedSize(true);
         tasklistRecycleview.setLayoutManager(new LinearLayoutManager(this));
@@ -129,8 +151,6 @@ public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
             }
         });
-
-
 
         // open Map activity
         btnMap = findViewById(R.id.btn_map);
@@ -294,7 +314,9 @@ public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
     //      -> create new tasklist for new user
     //      -> add new user to trip
+    //      -> create notification for users
     private void addUsertoTrip() {
+
         String tasklistID = tasklistReference.push().getKey();
         String tripID_userID = tripID + "_" + newUserID;
         ArrayList<Task> tasks = null;
@@ -311,7 +333,36 @@ public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
         databaseReference.child(tripID).updateChildren(tripUpdate);
 
+
+        // create notifitcations
+
+        // send notification to "old" trip members
+        for (String memberID : currentTripMembers){
+//            Log.d("NOTIFICATION", "memberID: "+memberID);
+
+            if (newUserID.equals(memberID)){
+                continue;
+            }
+
+            String notificationTitle = "New user in your trip!";
+            String notificationText = "User " + newUserUsername + " is added to your trip: " + currentTrip.getName() + ".";
+            long timestamp = new Date().getTime();
+
+            String notificationID = FirebaseDatabase.getInstance().getReference("Notifications").push().getKey();
+            Notification notification = new Notification(notificationID, memberID, notificationTitle, notificationText, timestamp);
+
+            FirebaseDatabase.getInstance().getReference("Notifications").child(notificationID).setValue(notification);
+        }
+
+        // send notification to new trip member
+        String title = "You have new trip!";
+        String text = "User: " + currentUser.username + " added you to trip: " + currentTrip.getName();
+        long timestamp = new Date().getTime();
+
+        String notificationID = FirebaseDatabase.getInstance().getReference("Notifications").push().getKey();
+        Notification newUserNotification = new Notification(notificationID, newUserID, title, text, timestamp);
+
+        FirebaseDatabase.getInstance().getReference("Notifications").child(notificationID).setValue(newUserNotification);
+
     }
-
-
 }

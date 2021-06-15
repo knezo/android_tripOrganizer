@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.example.triporganizer.Models.Notification;
 import com.example.triporganizer.Models.Task;
 import com.example.triporganizer.Models.Tasklist;
 import com.example.triporganizer.Models.Trip;
@@ -31,6 +32,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -204,6 +206,7 @@ public class TasklistAdapter extends RecyclerView.Adapter<TasklistAdapter.Taskli
 
         Tasklist tasklistForDelete = allTasklists.get(position);
 
+
         FirebaseDatabase.getInstance().getReference("Tasklists")
                 .child(tasklistForDelete.getTasklistID())
                 .removeValue();
@@ -214,7 +217,7 @@ public class TasklistAdapter extends RecyclerView.Adapter<TasklistAdapter.Taskli
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 trip = snapshot.getValue(Trip.class);
-//                Log.d("USER", "trip je: " + trip.toString() + trip.getName());
+                createNotifications(tasklistForDelete);
                 updateTripMembers(tasklistForDelete);
             }
 
@@ -238,6 +241,43 @@ public class TasklistAdapter extends RecyclerView.Adapter<TasklistAdapter.Taskli
         tripUpdate.put("members", members);
 
         FirebaseDatabase.getInstance().getReference("Trips").child(tasklist.getTripID()).updateChildren(tripUpdate);
+    }
+
+
+    private void createNotifications(Tasklist tasklist){
+        // create notification
+        ArrayList<String> tripMembers = trip.getMembers();
+
+        for (String member : tripMembers){
+
+            // notify deleted user
+            if (member.equals(tasklist.getUserID())){
+                String title = "Deleted from trip!";
+                String text = "You have been deleted from trip: " + trip.getName();
+
+                long timestamp = new Date().getTime();
+
+                String notificationID = FirebaseDatabase.getInstance().getReference("Notifications").push().getKey();
+                Notification notification = new Notification(notificationID, member, title, text, timestamp);
+
+                FirebaseDatabase.getInstance().getReference("Notifications").child(notificationID).setValue(notification);
+
+            } else {
+                // notify other trip members
+                String title = "User deleted from trip!";
+                String text = "User: " + tasklist.getUsername() + " was deleted from trip: " + trip.getName();
+                long timestamp = new Date().getTime();
+
+                String notificationID = FirebaseDatabase.getInstance().getReference("Notifications").push().getKey();
+                Notification notification = new Notification(notificationID, member, title, text, timestamp);
+
+                FirebaseDatabase.getInstance().getReference("Notifications").child(notificationID).setValue(notification);
+            }
+
+
+
+        }
+
     }
 
 

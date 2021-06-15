@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.triporganizer.Adapters.TripAdapter;
 import com.example.triporganizer.Fragments.FutureTripsFragment;
+import com.example.triporganizer.Fragments.NotificationFragment;
 import com.example.triporganizer.Fragments.PastTripsFragment;
 import com.example.triporganizer.Fragments.ProfileFragment;
 import com.example.triporganizer.Models.Trip;
@@ -132,6 +133,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_past_trips:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new PastTripsFragment()).commit();
                 getSupportActionBar().setTitle("Past trips");
+                break;
+            case R.id.nav_notifications:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new NotificationFragment()).commit();
+                getSupportActionBar().setTitle("Notifications");
                 break;
             case R.id.nav_profile:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ProfileFragment(user)).commit();

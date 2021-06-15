@@ -256,7 +256,6 @@ public class NewTripActivity extends AppCompatActivity {
             etLocation.setText(place.getAddress());
 
             String positionLatLng = String.valueOf(place.getLatLng());
-            Toast.makeText(getApplicationContext(), positionLatLng, Toast.LENGTH_LONG).show();
             etLat.setText(String.valueOf(place.getLatLng().latitude));
             etLng.setText(String.valueOf(place.getLatLng().longitude));
 

@@ -118,13 +118,11 @@ public class FutureTripsFragment extends Fragment {
 
         //add new trip floating action button
         fab.setOnClickListener(v -> {
-//            Toast.makeText(getActivity(), "you clikced on fab button", Toast.LENGTH_LONG).show();
-//                openNewTripDialog();
+
             startActivity(new Intent(getActivity(), NewTripActivity.class));
         });
 
-//        TextView textView = (TextView) view.findViewById(R.id.tekstzazamjenu);
-//        textView.setText("Promjenjen je tekstic");
+
         return view;
 
 
