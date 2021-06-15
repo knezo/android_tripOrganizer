@@ -64,7 +64,7 @@ public class TasklistAdapter extends RecyclerView.Adapter<TasklistAdapter.Taskli
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle("Attention!");
-                builder.setMessage("You surely want to delete this trip?");
+                builder.setMessage("Delete user from this trip?");
 
                 // Negative - dont delete tasklist
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -87,7 +87,7 @@ public class TasklistAdapter extends RecyclerView.Adapter<TasklistAdapter.Taskli
         holder.addTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, holder.newTask.getText(), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(context, holder.newTask.getText(), Toast.LENGTH_SHORT).show();
                 addTask(holder.newTask.getText().toString().trim(), position);
                 holder.newTask.setText("");
             }
@@ -150,7 +150,7 @@ public class TasklistAdapter extends RecyclerView.Adapter<TasklistAdapter.Taskli
                 deleteTask(tasklistPositon, position);
 
                 taskAdapter.notifyDataSetChanged();
-                Toast.makeText(context, "Deleted task", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(context, "Deleted task", Toast.LENGTH_SHORT).show();
             }
         };
 

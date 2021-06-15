@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/card_view"
     android:layout_width="match_parent"
-    android:layout_height="120dp"
+    android:layout_height="wrap_content"
     android:layout_gravity="top"
     app:cardBackgroundColor="@color/greenish"
     app:cardCornerRadius="15dp"
@@ -17,33 +17,33 @@
             android:orientation="horizontal"
             android:weightSum="1">
 
+<!--            <LinearLayout-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:layout_marginStart="8dp"-->
+<!--                android:layout_weight="0.08">-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:gravity="center"-->
+<!--                    android:text="@string/ready"-->
+<!--                    android:visibility="visible"-->
+<!--                    />-->
+
+<!--            </LinearLayout>-->
+
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginStart="8dp"
-                android:layout_weight="0.08">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:text="@string/ready"
-                    android:visibility="visible"
-                    />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.57"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tvTripName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginVertical="20dp"
+                    android:layout_marginTop="10dp"
 
                     android:fontFamily="sans-serif-medium"
                     android:gravity="center"
@@ -51,10 +51,20 @@
                     android:textColor="#fff"
                     android:textSize="20sp" />
 
+                <TextView
+                    android:id="@+id/tvTripLocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Location"
+                    android:gravity="center"
+                    android:layout_marginTop="10dp"/>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="8dp"
 
                     android:orientation="horizontal">
 
@@ -78,12 +88,12 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="0.35">
+                android:layout_weight="0.3">
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
+                    android:layout_margin="8dp"
                     android:contentDescription="@string/vrijeme_izleta"
                     android:src="@drawable/camping2" />
 

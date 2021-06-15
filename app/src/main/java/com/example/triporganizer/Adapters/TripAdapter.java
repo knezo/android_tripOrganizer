@@ -50,6 +50,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
         holder.name.setText(trip.getName());
         holder.time.setText(time);
         holder.date.setText(date);
+        holder.location.setText(trip.getLocation());
         holder.parent_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -70,7 +71,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
 
     public static class TripViewHolder extends RecyclerView.ViewHolder{
 
-        TextView name, time, date;
+        TextView name, time, date, location;
         CardView parent_layout;
 
         public TripViewHolder(@NonNull View itemView) {
@@ -80,6 +81,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
             time = itemView.findViewById(R.id.tvTripTime);
             date = itemView.findViewById(R.id.tvTripDate);
             parent_layout = itemView.findViewById(R.id.card_view);
+            location = itemView.findViewById(R.id.tvTripLocation);
 
         }
     }

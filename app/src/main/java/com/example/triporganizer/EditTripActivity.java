@@ -86,7 +86,6 @@ public class EditTripActivity extends AppCompatActivity {
                 etEditTime.setText(Utils.timestampToTime(trip.getDate()));
                 etEditDate.setText(Utils.timestampToDate(trip.getDate()));
 
-                Toast.makeText(EditTripActivity.this, "Tostirajmo", Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -204,7 +203,7 @@ public class EditTripActivity extends AppCompatActivity {
     private void getIncomingIntent(){
         if(getIntent().hasExtra("trip_id")){
             tripID = getIntent().getStringExtra("trip_id");
-            Toast.makeText(this, tripID, Toast.LENGTH_SHORT).show();
+
         }
     }
 
@@ -253,13 +252,13 @@ public class EditTripActivity extends AppCompatActivity {
             etEditLocation.setText(place.getAddress());
 
             String positionLatLng = String.valueOf(place.getLatLng());
-            Toast.makeText(getApplicationContext(), positionLatLng, Toast.LENGTH_LONG).show();
+//            Toast.makeText(getApplicationContext(), positionLatLng, Toast.LENGTH_LONG).show();
             etEditLat.setText(String.valueOf(place.getLatLng().latitude));
             etEditLng.setText(String.valueOf(place.getLatLng().longitude));
 
             //not ok
         } else if (requestCode == AutocompleteActivity.RESULT_ERROR){
-            Toast.makeText(getApplicationContext(), "To baš i ne radi", Toast.LENGTH_LONG).show();
+//            Toast.makeText(getApplicationContext(), "To baš i ne radi", Toast.LENGTH_LONG).show();
         }
     }
 }

@@ -37,7 +37,7 @@ import java.util.Map;
 
 public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener, DeleteTripDialog.DeleteTripDialogListener, AddUserToTripDialog.AddUserToTripDialogListener {
 
-    TextView tvTripName, tvTripTime, tvTripDate;
+    TextView tvTripName, tvTripTime, tvTripDate, tvTripLocation;
     Button btnMap, btnGoogleMaps, btnComments;
     ImageButton ibTripOptions;
 
@@ -65,6 +65,7 @@ public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         tvTripName = findViewById(R.id.tripName);
         tvTripTime = findViewById(R.id.tripTime);
         tvTripDate = findViewById(R.id.tripDate);
+        tvTripLocation = findViewById(R.id.tripLocation);
 
         getIncomingIntent();
 
@@ -84,6 +85,10 @@ public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
                 latitude = currentTrip.getLatitude();
                 longitude = currentTrip.getLongitude();
+
+                String location = currentTrip.getLocation();
+//                String location = currentTrip.getLocation().split(",")[0];
+                tvTripLocation.setText(location);
 
 //                Log.d("BAZA", longitude.toString());
 //                Log.d("BAZA", latitude.toString());
@@ -207,7 +212,7 @@ public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.popup_trip_adduser:
-                Toast.makeText(this, "Dodaješ usera", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "Dodaješ usera", Toast.LENGTH_SHORT).show();
                 AddUserToTripDialog addUserToTripDialog = new AddUserToTripDialog(this);
                 addUserToTripDialog.show(getSupportFragmentManager(), "adduser dialog");
                 return true;
@@ -234,7 +239,7 @@ public class TripActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     // delete trip using Dialog
     @Override
     public void onDeleteClicked() {
-        Toast.makeText(this, "Sad bi izbrisao trip", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "Sad bi izbrisao trip", Toast.LENGTH_SHORT).show();
         databaseReference.child(tripID).removeEventListener(valueEventListener);
         databaseReference.child(tripID).removeValue();
         finish();

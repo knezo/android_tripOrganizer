@@ -45,16 +45,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         register.setOnClickListener(this);
 
 
-
+        // check if user is already logged in
+        //    -> if yes open main activity
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if(user != null){
-            Log.d("CREATION", "User je logiran");
-            Toast.makeText(LoginActivity.this, "Logiran si", Toast.LENGTH_LONG).show();
             finish();
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
         } else {
-            Log.d("CREATION", "User NI logiran!!!");
-            Toast.makeText(LoginActivity.this, "Ni logiran user", Toast.LENGTH_LONG).show();
+            Log.d("CREATION", "User not logged in!");
         }
 
     }
@@ -67,7 +65,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 startActivity(intent);
                 break;
             case R.id.btnLogin:
-                Toast.makeText(LoginActivity.this, "Kliknuo si login", Toast.LENGTH_LONG).show();
                 userLogIn();
 
                 break;

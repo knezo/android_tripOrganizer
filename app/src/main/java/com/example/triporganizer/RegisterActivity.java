@@ -19,7 +19,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
 
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
@@ -30,6 +35,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private ProgressBar progressBar;
 
     private FirebaseAuth mAuth;
+
+    ArrayList<String> usersUsernames = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +57,22 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
+        FirebaseDatabase.getInstance().getReference("Users").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                usersUsernames.clear();
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                    User user = dataSnapshot.getValue(User.class);
+                    usersUsernames.add(user.username);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
 
     }
 
@@ -61,7 +84,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 break;
             case R.id.buttonRegister:
                 registerUser();
-//                Toast.makeText(getApplicationContext(),"Alo ljudi", Toast.LENGTH_LONG).show();
                 break;
         }
 
@@ -116,6 +138,13 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         if (!password2.equals(password1)){
             editTextPassword2.setError("Confirmed password not same as initial one!");
             editTextPassword2.requestFocus();
+            return;
+        }
+
+        // check if given username is already taken
+        if (usersUsernames.contains(username)){
+            editTextUsername.setError("Username is already taken!");
+            editTextUsername.requestFocus();
             return;
         }
 
